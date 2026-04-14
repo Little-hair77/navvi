@@ -10,9 +10,28 @@ class DetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(item.name),
-        backgroundColor: Colors.purple,
-        foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent, // Necessário para o degradê aparecer
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)], // Mesmas cores da Home
+            ),
+          ),
+        ),
+        title: Text(
+          item.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        // Garante que o ícone de voltar fique branco
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Column(
