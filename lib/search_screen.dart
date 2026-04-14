@@ -62,13 +62,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 return ListTile(
                   leading: const Icon(Icons.place),
                   title: Text(item.name),
-                  // O erro "item.description" sumirá porque o item é PlaceModel
                   subtitle: Text(item.description ?? ''), 
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        // CORREÇÃO: Enviando o 'item' em vez de 'title'
                         builder: (_) => DetailScreen(item: item),
                       ),
                     );
