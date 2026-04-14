@@ -12,7 +12,30 @@ class ListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(type.toUpperCase()),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)],
+            ),
+          ),
+        ),
+        title: Text(
+          // Aqui você define o que cada categoria deve exibir
+          type == 'accommodation' ? 'Hospedagens' :
+          type == 'activity' ? 'O que fazer' :
+          type == 'poi' ? 'Pontos Turísticos' : 'Explorar', 
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<List<PlaceModel>>(
         future: ApiService().fetchData(type), // Chama a API
