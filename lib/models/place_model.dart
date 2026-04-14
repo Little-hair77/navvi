@@ -2,9 +2,9 @@ class PlaceModel {
   final String id;
   final String name;
   final String? imageUrl;
-  final String? descripton;
+  final String? description;
 
-  PlaceModel({required this.id, required this.name, this.imageUrl, this.descripton});
+  PlaceModel({required this.id, required this.name, this.imageUrl, this.description});
 
   factory PlaceModel.fromJson(Map<String, dynamic> json){
 
@@ -22,7 +22,7 @@ class PlaceModel {
       id: json['id'],
       name: title ?? 'Sem nome',
       imageUrl: img,
-      descripton: json['Detail']?['en']?['BaseText'],
+      description: json['Detail']?['en']?['BaseText'],
     );
   }
 }

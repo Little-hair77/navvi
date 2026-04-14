@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'detail_screen.dart';
+import './models/place_model.dart';
+import './services/api_service.dart';
 
 class ListScreen extends StatelessWidget {
   final String type;
@@ -12,24 +14,35 @@ class ListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(type.toUpperCase()),
       ),
-      body: ListView.builder(
-        itemCount: 10, // futuramente vem da API
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.all(10),
-            child: ListTile(
-              leading: const Icon(Icons.image),
-              title: Text('Item $index'),
-              subtitle: const Text('Descrição breve'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailScreen(title: 'Item $index'),
+      body: FutureBuilder<List<PlaceModel>>(
+        future: ApiService().fetchData(type), // Chama a API
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator()); // Carregando
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro: ${snapshot.error}')); // Deu ruim
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Nenhum item encontrado.'));
+          }
+
+          final items = snapshot.data!;
+          return ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Card(
+                child: ListTile(
+                  leading: item.imageUrl != null 
+                    ? Image.network(item.imageUrl!, width: 50, fit: BoxFit.cover)
+                    : const Icon(Icons.image),
+                  title: Text(item.name),
+                  onTap: () => Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (_) => DetailScreen(item: item))
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
       ),
