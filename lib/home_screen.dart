@@ -15,19 +15,46 @@ class NavviApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Navvi'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search),
+        // Centraliza o nome Navvi
+        centerTitle: true, 
+        // Remove a sombra padrão para um visual mais "flat" e moderno
+        elevation: 0, 
+        backgroundColor: Colors.transparent, // Deixa transparente para o degradê aparecer
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              // Mistura de tons de roxo para um visual premium
+              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)], 
+            ),
+          ),
+        ),
+        title: const Text(
+          'NAVVI',
+          style: TextStyle(
+            fontFamily: 'Georgia', // Você pode trocar por 'Ubuntu', 'Poppins' ou 'Montserrat' se tiver no pubspec
+            fontWeight: FontWeight.w900,
+            letterSpacing: 4.0, // Espaçamento entre letras dá ar de logo
+            color: Colors.white,
+            fontSize: 22,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: const Icon(Icons.search, color: Colors.white, size: 28),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SearchScreen()),
                 );
               },
-            )
-          ],
-        ),
+            ),
+          ),
+        ],
+      ),
         body: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
