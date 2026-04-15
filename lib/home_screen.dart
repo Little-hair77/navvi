@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'search_screen.dart';
 import 'list_screen.dart';
+import 'on_screen.dart';
 import 'dart:async'; // Necessário para o Timer
 
 void main() {
@@ -206,6 +207,59 @@ class _NavviAppState extends State<NavviApp> {
                   _buildModernCard(context, 'Pontos Turísticos', Icons.camera_alt, 'poi', 'https://images.unsplash.com/photo-1500835595366-2047f4749f7e?w=500'),
                   _buildModernCard(context, 'Cultura', Icons.museum, 'event', 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500'),
                 ]),
+              ),
+            ),
+            // ... dentro dos slivers: [ ]
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100], // Fundo levemente cinza para destacar do branco
+                  border: Border(top: BorderSide(color: Colors.grey[300]!)),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      "NAVVI",
+                      style: TextStyle(
+                        fontFamily: 'Georgia',
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF4A148C), // Roxo escuro para a logo
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Explorando o mundo com você.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        // Navega para a nova tela que você está criando
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SobreScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "Sobre Nós",
+                        style: TextStyle(
+                          color: Color(0xFF8E24AA),
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Versão 1.0.0",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
