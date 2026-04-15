@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:navvi/home_screen.dart';
+import 'login_screen.dart'; // Importa a sua nova tela de login
+import 'home_screen.dart';  // Importa a home (onde está a classe NavviApp)
 
-import 'home_screen.dart';
-
-void main(){
-  runApp(MaterialApp(
-    home: NavviApp(),
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false, // Remove a faixa de debug
+    home: LoginScreen(), // Define que o app SEMPRE começa pelo Login
   ));
 }
