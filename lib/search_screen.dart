@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './models/place_model.dart'; // Importante!
+import './models/place_model.dart';
 import 'detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -11,92 +11,132 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   String query = '';
-  
-  // Lista que guardará os resultados (PlaceModel)
   List<PlaceModel> searchResults = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true, // Mantém o padrão de centralização
+        centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)], // Roxo Navvi
-            ),
-          ),
-        ),
+        backgroundColor: const Color(0xFF4A148C), // Roxo sólido para foco
         title: const Text(
-          'BUSCAR', // Você pode definir o nome que desejar aqui
+          'BUSCAR',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 18,
             letterSpacing: 2.0,
             color: Colors.white,
           ),
         ),
-        // Garante que o ícone de voltar (back) e outros fiquem brancos
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
+          // Campo de busca com design "Soft"
           Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Digite o nome de um hotel ou local...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+            padding: const EdgeInsets.all(20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(15),
               ),
-              onChanged: (value) {
-                setState(() {
-                  query = value;
-                  // Aqui chamará a API futuramente. 
-                  // Por enquanto, vamos criar um item fake para teste:
-                  if (value.isNotEmpty) {
-                    searchResults = [
-                      PlaceModel(
-                        id: '1', 
-                        name: 'Resultado para: $value',
-                        description: 'Este é um resultado de busca do Navvi.'
-                      ),
-                    ];
-                  } else {
-                    searchResults = [];
-                  }
-                });
-              },
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    query = value;
+                    if (value.isNotEmpty) {
+                      searchResults = [
+                        PlaceModel(
+                          id: '1',
+                          name: 'Resultado para: $value',
+                          description: 'Toque para ver detalhes do local encontrado.',
+                          imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500', // Exemplo
+                        ),
+                      ];
+                    } else {
+                      searchResults = [];
+                    }
+                  });
+                },
+                decoration: const InputDecoration(
+                  hintText: 'O que você está procurando?',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none,
+                  prefixIcon: Icon(Icons.search, color: Color(0xFF4A148C)),
+                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
             ),
           ),
+
           Expanded(
-            child: ListView.builder(
-              itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                final item = searchResults[index];
-                
-                return ListTile(
-                  leading: const Icon(Icons.place),
-                  title: Text(item.name),
-                  subtitle: Text(item.description ?? ''), 
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailScreen(item: item),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            child: query.isEmpty 
+              ? _buildEmptyState() 
+              : _buildResultsList(),
           ),
         ],
       ),
+    );
+  }
+
+  // Widget para quando a tela de busca estiver vazia
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 15),
+          Text(
+            "Encontre seu próximo destino",
+            style: TextStyle(color: Colors.grey[600], fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            "Digite algo para começar.",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget para a lista de resultados estilizada
+  Widget _buildResultsList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: searchResults.length,
+      itemBuilder: (context, index) {
+        final item = searchResults[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.grey[100]!),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(10),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: item.imageUrl != null 
+                ? Image.network(item.imageUrl!, width: 60, height: 60, fit: BoxFit.cover)
+                : Container(width: 60, height: 60, color: Colors.grey[200], child: const Icon(Icons.place, color: Colors.grey)),
+            ),
+            title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(item.description ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => DetailScreen(item: item)),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
