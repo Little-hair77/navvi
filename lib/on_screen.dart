@@ -19,7 +19,7 @@ class SobreScreen extends StatelessWidget {
             ),
           ),
         ),
-        title: const Text('SOBRE O NAVVI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('SOBRE NÓS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
