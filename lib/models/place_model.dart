@@ -5,38 +5,161 @@ class PlaceModel {
   final String? description;
 
   PlaceModel({
-    required this.id, 
-    required this.name, 
-    this.imageUrl, 
-    this.description
+    required this.id,
+    required this.name,
+    this.imageUrl,
+    this.description,
   });
 
   factory PlaceModel.fromJson(Map<String, dynamic> json) {
-  // 1. Busca o título (você já faz bem, mas vamos garantir)
-  String? title = json['ShortName'];
-  if (title == null && json['Detail'] != null) {
-    title = json['Detail']['en']?['Title'] ?? json['Detail']['it']?['Title'];
+    final title = _extractTitle(json) ?? 'Local sem nome';
+    final description = _extractDescription(json);
+    final imageUrl = _extractImageUrl(json);
+
+    return PlaceModel(
+      id: (json['Id'] ?? json['id'] ?? '').toString(),
+      name: title,
+      imageUrl: imageUrl,
+      description: (description != null && description.isNotEmpty)
+          ? description
+          : 'Explore este local incrivel para descobrir mais detalhes.',
+    );
   }
 
-  // 2. Busca a Imagem (Tenta a galeria, se não tiver, tenta o campo ImageSummary)
-  String? img;
-  if (json['ImageGallery'] != null && (json['ImageGallery'] as List).isNotEmpty) {
-    img = json['ImageGallery'][0]['ImageUrl'];
-  } else if (json['FirstImage'] != null) {
-    img = json['FirstImage']['ImageUrl'];
+  static String? _extractTitle(Map<String, dynamic> json) {
+    final directTitle = _firstNonEmptyString([
+      json['ShortName'],
+      json['Name'],
+      json['Title'],
+    ]);
+    if (directTitle != null) return directTitle;
+
+    final detail = json['Detail'];
+    if (detail is Map<String, dynamic>) {
+      return _extractLocalizedField(detail, const [
+        'Title',
+        'ShortName',
+        'Name',
+      ]);
+    }
+
+    return null;
   }
 
-  // 3. Busca a Descrição (Tenta vários campos onde ela costuma se esconder)
-  String? desc = json['Detail']?['en']?['BaseText'];
-  if (desc == null || desc.isEmpty) {
-    desc = json['Detail']?['it']?['BaseText']; // Tenta em italiano se não tiver inglês
+  static String? _extractDescription(Map<String, dynamic> json) {
+    final directDescription = _firstNonEmptyString([
+      json['BaseText'],
+      json['Description'],
+      json['Desc'],
+      json['Text'],
+    ]);
+    if (directDescription != null) return directDescription;
+
+    final detail = json['Detail'];
+    if (detail is Map<String, dynamic>) {
+      return _extractLocalizedField(detail, const [
+        'BaseText',
+        'Description',
+        'Desc',
+        'Text',
+      ]);
+    }
+
+    return null;
   }
 
-  return PlaceModel(
-    id: (json['Id'] ?? json['id'] ?? '').toString(),
-    name: title ?? 'Local sem nome',
-    imageUrl: img,
-    description: (desc != null && desc.isNotEmpty) ? desc : 'Explore este local incrível para descobrir mais detalhes.',
-  );
-}
+  static String? _extractImageUrl(Map<String, dynamic> json) {
+    final gallery = json['ImageGallery'];
+    if (gallery is List) {
+      for (final item in gallery) {
+        if (item is Map<String, dynamic>) {
+          final candidate = _firstNonEmptyString([
+            item['ImageUrl'],
+            item['Url'],
+            item['ImageSource'],
+          ]);
+          final normalized = _normalizeImageUrl(candidate);
+          if (normalized != null) return normalized;
+        }
+      }
+    }
+
+    final firstImage = json['FirstImage'];
+    if (firstImage is Map<String, dynamic>) {
+      final normalized = _normalizeImageUrl(_firstNonEmptyString([
+        firstImage['ImageUrl'],
+        firstImage['Url'],
+        firstImage['ImageSource'],
+      ]));
+      if (normalized != null) return normalized;
+    }
+
+    return _normalizeImageUrl(_firstNonEmptyString([
+      json['ImageUrl'],
+      json['Image'],
+      json['ImageSource'],
+    ]));
+  }
+
+  static String? _extractLocalizedField(
+    Map<String, dynamic> detail,
+    List<String> fieldNames,
+  ) {
+    const preferredLanguages = ['pt', 'pt-br', 'en', 'it', 'de'];
+
+    for (final language in preferredLanguages) {
+      final localizedEntry = detail[language];
+      if (localizedEntry is Map<String, dynamic>) {
+        final value = _firstValueFromMap(localizedEntry, fieldNames);
+        if (value != null) return value;
+      }
+    }
+
+    for (final entry in detail.values) {
+      if (entry is Map<String, dynamic>) {
+        final value = _firstValueFromMap(entry, fieldNames);
+        if (value != null) return value;
+      }
+    }
+
+    return _firstValueFromMap(detail, fieldNames);
+  }
+
+  static String? _firstValueFromMap(
+    Map<String, dynamic> map,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = map[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  static String? _firstNonEmptyString(List<dynamic> values) {
+    for (final value in values) {
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  static String? _normalizeImageUrl(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+
+    final trimmed = value.trim();
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null) return null;
+
+    if (uri.hasScheme) return trimmed;
+    if (trimmed.startsWith('//')) return 'https:$trimmed';
+    if (trimmed.startsWith('/')) {
+      return 'https://tourism.api.opendatahub.com$trimmed';
+    }
+
+    return 'https://tourism.api.opendatahub.com/$trimmed';
+  }
 }
