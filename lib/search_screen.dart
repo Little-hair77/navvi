@@ -19,9 +19,29 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buscar no Navvi'),
-        backgroundColor: Colors.purple,
-        foregroundColor: Colors.white,
+        centerTitle: true, // Mantém o padrão de centralização
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)], // Roxo Navvi
+            ),
+          ),
+        ),
+        title: const Text(
+          'BUSCAR', // Você pode definir o nome que desejar aqui
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            letterSpacing: 2.0,
+            color: Colors.white,
+          ),
+        ),
+        // Garante que o ícone de voltar (back) e outros fiquem brancos
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
