@@ -26,9 +26,9 @@ class ListScreen extends StatelessWidget {
           ),
         ),
         title: Text(
-          type == 'accommodation' ? 'Hospedagens' :
-          type == 'activity' ? 'O que fazer' :
-          type == 'poi' ? 'Pontos Turísticos' : 'Explorar', 
+          type == 'accommodation' ? 'HOSPEDAGENS' :
+          type == 'activity' ? 'O QUE FAZER?' :
+          type == 'poi' ? 'PONTOS TURÍSTICOS' : 'EXPLORAR', 
           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
