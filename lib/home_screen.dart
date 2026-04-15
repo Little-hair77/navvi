@@ -3,77 +3,161 @@ import 'search_screen.dart';
 import 'list_screen.dart';
 
 void main() {
-  runApp(const NavviApp());
+  runApp(NavviApp());
 }
 
-class NavviApp extends StatelessWidget {
-  const NavviApp({super.key});
+class NavviApp extends StatefulWidget {
+  NavviApp({super.key});
+
+  @override
+  State<NavviApp> createState() => _NavviAppState();
+}
+
+class _NavviAppState extends State<NavviApp> {
+  final List<Map<String, String>> carouselItems = [
+    {
+      'title': 'Explore o Mundo',
+      'desc': 'Encontre as melhores acomodações com o Navvi.',
+      'img': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800'
+    },
+    {
+      'title': 'Viva Experiências',
+      'desc': 'Atividades inesquecíveis em cada destino.',
+      'img': 'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800'
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
       home: Scaffold(
         appBar: AppBar(
-        // Centraliza o nome Navvi
-        centerTitle: true, 
-        // Remove a sombra padrão para um visual mais "flat" e moderno
-        elevation: 0, 
-        backgroundColor: Colors.transparent, // Deixa transparente para o degradê aparecer
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              // Mistura de tons de roxo para um visual premium
-              colors: [Color(0xFF8E24AA), Color(0xFF4A148C)], 
-            ),
-          ),
-        ),
-        title: const Text(
-          'NAVVI',
-          style: TextStyle(
-            fontFamily: 'Georgia', // Você pode trocar por 'Ubuntu', 'Poppins' ou 'Montserrat' se tiver no pubspec
-            fontWeight: FontWeight.w900,
-            letterSpacing: 4.0, // Espaçamento entre letras dá ar de logo
-            color: Colors.white,
-            fontSize: 22,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: IconButton(
-              icon: const Icon(Icons.search, color: Colors.white, size: 28),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SearchScreen()),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-        body: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text("Bem-vindo ao",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    Text("Navvi Explorer",
-                        style: TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 20),
-                  ],
-                ),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF8E24AA), Color(0xFF4A148C)],
               ),
             ),
+          ),
+          title: const Text(
+            'NAVVI',
+            style: TextStyle(
+              fontFamily: 'Georgia',
+              fontWeight: FontWeight.w900,
+              letterSpacing: 4.0,
+              color: Colors.white,
+              fontSize: 22,
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                icon: const Icon(Icons.search, color: Colors.white, size: 28),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SearchScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+
+        body: CustomScrollView(
+          slivers: [
+            // 🔥 CORRIGIDO AQUI
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: PageView.builder(
+                      itemCount: carouselItems.length,
+                      controller: PageController(viewportFraction: 0.9),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                              image: NetworkImage(carouselItems[index]['img']!),
+                              fit: BoxFit.cover,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.purple.withOpacity(0.8)
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  carouselItems[index]['title']!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  carouselItems[index]['desc']!,
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Bem-vindo ao",
+                            style: TextStyle(fontSize: 16, color: Colors.grey)),
+                        Text("Navvi Explorer",
+                            style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold)),
+                        SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverGrid(
@@ -103,7 +187,7 @@ class NavviApp extends StatelessWidget {
                     'Pontos Turísticos',
                     Icons.camera_alt,
                     'poi',
-                    'https://images.unsplash.com/photo-1500835595366-2047f4749f7e?w=500',
+                    'https://emtodolugar.facha.edu.br/2021/07/12/pontos-turisticos-para-visitar-pos-pandemia/',
                   ),
                   _buildModernCard(
                     context,
@@ -121,7 +205,6 @@ class NavviApp extends StatelessWidget {
     );
   }
 
-  // NOVA FUNÇÃO (corrige o erro)
   Widget _buildModernCard(
     BuildContext context,
     String title,
