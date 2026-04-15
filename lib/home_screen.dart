@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'search_screen.dart';
 import 'list_screen.dart';
+import 'dart:async'; // Necessário para o Timer
 
 void main() {
-  runApp(NavviApp());
+  runApp(const NavviApp());
 }
 
 class NavviApp extends StatefulWidget {
-  NavviApp({super.key});
+  const NavviApp({super.key});
 
   @override
   State<NavviApp> createState() => _NavviAppState();
 }
 
 class _NavviAppState extends State<NavviApp> {
+  late PageController _pageController;
+  int _currentPage = 0;
+  Timer? _timer;
+
   final List<Map<String, String>> carouselItems = [
     {
       'title': 'Explore o Mundo',
@@ -26,6 +31,36 @@ class _NavviAppState extends State<NavviApp> {
       'img': 'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800'
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.9);
+
+    // Inicia o movimento automático a cada 3 segundos
+    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+      if (_currentPage < carouselItems.length - 1) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,19 +98,15 @@ class _NavviAppState extends State<NavviApp> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const SearchScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const SearchScreen()),
                   );
                 },
               ),
             ),
           ],
         ),
-
         body: CustomScrollView(
           slivers: [
-            // 🔥 CORRIGIDO AQUI
             SliverToBoxAdapter(
               child: Column(
                 children: [
@@ -83,7 +114,11 @@ class _NavviAppState extends State<NavviApp> {
                     height: 200,
                     child: PageView.builder(
                       itemCount: carouselItems.length,
-                      controller: PageController(viewportFraction: 0.9),
+                      // VINCULAMOS O CONTROLLER AQUI
+                      controller: _pageController, 
+                      onPageChanged: (index) {
+                        _currentPage = index;
+                      },
                       itemBuilder: (context, index) {
                         return Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -138,7 +173,6 @@ class _NavviAppState extends State<NavviApp> {
                       },
                     ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -157,7 +191,6 @@ class _NavviAppState extends State<NavviApp> {
                 ],
               ),
             ),
-
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverGrid(
@@ -168,34 +201,10 @@ class _NavviAppState extends State<NavviApp> {
                   childAspectRatio: 0.85,
                 ),
                 delegate: SliverChildListDelegate([
-                  _buildModernCard(
-                    context,
-                    'Acomodações',
-                    Icons.hotel,
-                    'accommodation',
-                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
-                  ),
-                  _buildModernCard(
-                    context,
-                    'Atividades',
-                    Icons.explore,
-                    'activity',
-                    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=500',
-                  ),
-                  _buildModernCard(
-                    context,
-                    'Pontos Turísticos',
-                    Icons.camera_alt,
-                    'poi',
-                    'https://emtodolugar.facha.edu.br/2021/07/12/pontos-turisticos-para-visitar-pos-pandemia/',
-                  ),
-                  _buildModernCard(
-                    context,
-                    'Cultura',
-                    Icons.museum,
-                    'event',
-                    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500',
-                  ),
+                  _buildModernCard(context, 'Acomodações', Icons.hotel, 'accommodation', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500'),
+                  _buildModernCard(context, 'Atividades', Icons.explore, 'activity', 'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=500'),
+                  _buildModernCard(context, 'Pontos Turísticos', Icons.camera_alt, 'poi', 'https://images.unsplash.com/photo-1500835595366-2047f4749f7e?w=500'),
+                  _buildModernCard(context, 'Cultura', Icons.museum, 'event', 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500'),
                 ]),
               ),
             ),
@@ -205,38 +214,19 @@ class _NavviAppState extends State<NavviApp> {
     );
   }
 
-  Widget _buildModernCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    String type,
-    String imageUrl,
-  ) {
+  // O método _buildModernCard permanece igual ao seu...
+  Widget _buildModernCard(BuildContext context, String title, IconData icon, String type, String imageUrl) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ListScreen(type: type),
-          ),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ListScreen(type: type)));
       },
-      borderRadius: BorderRadius.circular(15),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Stack(
           fit: StackFit.expand,
           children: [
             Image.network(imageUrl, fit: BoxFit.cover),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
+            Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.7)], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -245,13 +235,7 @@ class _NavviAppState extends State<NavviApp> {
                 children: [
                   Icon(icon, color: Colors.white),
                   const SizedBox(height: 5),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
